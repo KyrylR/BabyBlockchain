@@ -39,8 +39,7 @@ Awareness is gained by implementing your own minimal version of blockchain
 
 ## Authors
 
-ex. Kyrylo Riabov  
-ex. [Gmail](kyryl.ryabov@gmail.com)
+ex. Kyrylo Riabov [Gmail](kyryl.ryabov@gmail.com)
 
 ## License
 
