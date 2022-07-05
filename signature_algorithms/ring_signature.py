@@ -2,7 +2,6 @@ import itertools
 from random import randint
 from typing import Optional
 
-import numpy as np
 from dataclasses import dataclass, field
 from curve import MontgomeryCurve, Point
 
@@ -101,15 +100,15 @@ class RingSignature:
 if __name__ == "__main__":
     sign = RingSignature()
     key_pair = KeyPair()
-    public_keys = []
+    public_keys_list = []
     private_keys = []
 
     for idx in range(4):
         pk, pbk = key_pair.gen_keypair()
-        public_keys.append(pbk)
+        public_keys_list.append(pbk)
         private_keys.append(pk)
 
     test_index = 2
     message = "This is a ring signature"
-    signature = sign.sign(message, public_keys, private_keys[test_index], test_index)
-    print(sign.verify(message, public_keys, *signature))
+    signature = sign.sign(message, public_keys_list, private_keys[test_index], test_index)
+    print(sign.verify(message, public_keys_list, *signature))
