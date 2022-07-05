@@ -77,8 +77,8 @@ class RingSignature:
         so it involves the use of a private key
         :param msg: Plain text.
         :param public_keys: Array of public keys.
-        :param e_0:
-        :param ss:  s's previously calculated
+        :param e_0: first part of signature.
+        :param ss: second part of signature.
         :return: true if signature is valid.
         """
         keys_count = len(public_keys)
