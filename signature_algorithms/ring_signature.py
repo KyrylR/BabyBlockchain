@@ -8,7 +8,7 @@ from curve import MontgomeryCurve, Point
 # Use my own implementation of Keccak
 from hash_lib.Keccak.Keccak import Keccak
 
-from key_pair import KeyPair
+from key_pair import KeyPairGenerator
 
 
 @dataclass
@@ -99,7 +99,7 @@ class RingSignature:
 
 if __name__ == "__main__":
     sign = RingSignature()
-    key_pair = KeyPair()
+    key_pair = KeyPairGenerator()
     public_keys_list = []
     private_keys = []
 

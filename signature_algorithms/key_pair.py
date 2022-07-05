@@ -2,7 +2,7 @@ from binascii import hexlify
 from dataclasses import dataclass, field
 from os import urandom
 from curve import MontgomeryCurve, Point
-from typing import Tuple
+from typing import Tuple, Optional
 
 """
 I find these approaches beautiful, simple and effective.
@@ -13,7 +13,7 @@ Code modification from: https://github.com/AntonKueltz/fastecdsa
 
 
 @dataclass
-class KeyPair:
+class KeyPairGenerator:
     """
     A class designed to handle key pairs.
     It generates private and public keys based on Elliptic Curve math.
@@ -86,3 +86,13 @@ class KeyPair:
             fastecdsa.point.Point: The public key, a point on the given curve.
         """
         return d * curve.G
+
+
+@dataclass
+class KeyPair:
+    generator: KeyPairGenerator = field(default=KeyPairGenerator(), repr=False, init=False)
+    private_key: Optional[int] = field(default=None)
+    public_key: Optional[Point] = field(default=None)
+
+    def __post_init__(self):
+        self.private_key, self.public_key = self.generator.gen_keypair()
