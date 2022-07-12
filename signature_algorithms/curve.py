@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from os import urandom
 from typing import Optional
-from utils import *
+from features.utils import *
 
 """
 Here is my motivation to use some tools:
