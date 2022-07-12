@@ -146,3 +146,18 @@ def bytes_needed(n: int) -> int:
     if n == 0:
         return 1
     return int(log(n, 256)) + 1
+
+
+def performance(func):
+    from functools import wraps
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        from time import time
+        t1 = time()
+        result = func(*args, **kwargs)
+        t2 = time()
+        print(f'Function: {func.__name__} took {t2 - t1} s')
+        return result
+
+    return wrapper

@@ -13,7 +13,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Optional, Union, List
 
-from account import Account
+from blockchain.account import Account
 from signature_algorithms.ring_signature import RingSignature
 
 
