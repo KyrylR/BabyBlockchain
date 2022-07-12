@@ -1,4 +1,4 @@
-from account import Account
+from blockchain.account import Account
 
 
 if __name__ == "__main__":
