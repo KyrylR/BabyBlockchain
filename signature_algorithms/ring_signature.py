@@ -7,7 +7,7 @@ from curve import MontgomeryCurve, Point
 
 # Use my own implementation of Keccak
 from hash_lib.Keccak.Keccak import Keccak
-
+from features.utils import performance
 from key_pair import KeyPairGenerator
 
 
@@ -34,6 +34,7 @@ class RingSignature:
 
         return int(Keccak().update(str2hash.encode()), 16)
 
+    # @performance
     def sign(self, msg: str, public_keys: list, private_key: int, signer_key_index: int):
         """
         Function that accepts message, arrays of public and private keys and private key index of signer
@@ -71,6 +72,7 @@ class RingSignature:
         ss[signer_key_index] = (alfa - private_key * e[signer_key_index]) % self.curve.n
         return e[0], ss
 
+    # @performance
     def verify(self, msg: str, public_keys: list, e_0, ss) -> bool:
         """
         Check signature: specifies that the 's' values are calculated after the 'e' values,
