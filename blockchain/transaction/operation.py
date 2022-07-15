@@ -62,7 +62,7 @@ class Operation:
 
         :return: true/false depending on the results of the transaction validation.
         """
-        if self.signature is None or self.sender.balance < self.amount:
+        if self.signature is None or self.sender.__balance < self.amount:
             return False
 
         for pair in self.sender.wallet:
