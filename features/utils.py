@@ -6,6 +6,9 @@ All links are provided!
 
 from math import log
 
+from blockchain.account import Account
+from blockchain.hash import Hash
+
 """
 Modular multiplicative inverse function in Python:
 https://stackoverflow.com/questions/4798654/modular-multiplicative-inverse-function-in-python
@@ -161,3 +164,7 @@ def performance(func):
         return result
 
     return wrapper
+
+
+def get_transaction_message(sender: Account, receiver: Account, amount) -> str:
+    return Hash().to_sha1(str(sender.account_id) + str(receiver.account_id) + str(amount))
