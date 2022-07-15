@@ -2,23 +2,22 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from pprint import pprint
 from random import randint
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
+from blockchain.transaction.operation import Operation
+from features.utils import get_transaction_message as tx_msg
+from signature_algorithms.ecdsa_signature import ECDSA
 from signature_algorithms.key_pair import KeyPair
 from hash_lib.Keccak.Keccak import Keccak
-
-from signature_algorithms.ring_signature import RingSignature
 
 
 @dataclass
 class Account:
-    """
-    account_id: a unique value intended to identify the account within the system.
-    Just hash value of initial wallet.
-    """
+    # A unique value intended to identify the account within the system.
+    # Just hash value of initial wallet.
     account_id: Optional[str] = field(default=None)
     wallet: Optional[List[KeyPair]] = field(default=None)
-    balance: Optional[int] = field(default=0)
+    __balance: Optional[int] = field(default=0)
 
     def __str__(self):
         return self.account_id
@@ -48,29 +47,51 @@ class Account:
         """
         self.wallet.append(key_pair)
 
-    def update_balance(self, value: int) -> None:
+    def update_balance(self, value: int) -> bool:
         """
         This function allows to update the user's balance.
         It takes an integer value as input.
-        :return: None
+        :return: true if everything is fine.
         """
-        if self.balance + value >= 0:
-            # TODO, verify that everything is correct!
-            self.balance += value
+        if self.__balance + value >= 0:
+            self.__balance += value
+            return True
 
-    def create_payment_operation(self, other_account: "Account", value: int, wallet_key_index: int):
+        return False
+
+    def create_payment_operation(self,
+                                 other_account: "Account",
+                                 amount: int,
+                                 private_key: int) -> Tuple[Optional[Operation], bool]:
         """
         A function that allows to create a payment transaction on behalf of this account for the recipient.
         It accepts the account object to which the payment will be made, the amount of the
         transfer and the wallet's key index.
-        :return: true if everything is fine.
+        :return: true if everything is fine and Operation itseld
         """
-        if value <= 0 or value > self.balance:
-            return False
-        # TODO, make it through transactions
-        other_account.update_balance(value)
-        self.sign_data("Dummy!", wallet_key_index)
-        return True
+        if amount <= 0 or amount > self.__balance:
+            return None, False
+
+        signature, correct = self.__sign_data(private_key, tx_msg(self, other_account, amount))
+        if correct is False:
+            return None, False
+
+        op, correct = Operation().create_operation(self, other_account, amount, signature)
+        if correct is True:
+            return op, True
+        else:
+            return None, False
+
+    def __sign_data(self, private_key: int, message: str) -> Tuple[Optional[Tuple[int, int]], bool]:
+        """
+        A function which allows the user to sign arbitrary data.
+        It takes a message and a wallet key pair index as input.
+        :return: value for the signature
+        """
+        for pair in self.wallet:
+            if private_key == pair.private_key:
+                return ECDSA().sign(private_key, message), True
+        return None, False
 
     @property
     def get_balance(self) -> int:
@@ -78,23 +99,7 @@ class Account:
         A function to get the user's balance.
         :return: integer value of balance.
         """
-        return self.balance
-
-    def print_balance(self) -> None:
-        """
-        Prints the user's balance.
-        :return: None.
-        """
-        pprint(f"Balance: {self.balance} for account: {self.account_id}")
-
-    def sign_data(self, message: str, public_keys: list, keys_index: int):
-        """
-        A function which allows the user to sign arbitrary data.
-        It takes a message and a wallet key pair index as input.
-        :return: value for the signature
-        """
-        key_idx = randint(0, len(public_keys))
-        return RingSignature().sign(message, public_keys, self.wallet[keys_index].private_key, key_idx)
+        return self.__balance
 
     def print(self) -> None:
         """
@@ -102,3 +107,10 @@ class Account:
         :return: None
         """
         pprint(self.wallet)
+
+    def print_balance(self) -> None:
+        """
+        Prints the user's balance.
+        :return: None.
+        """
+        pprint(f"Balance: {self.__balance} for account: {self.account_id}")
