@@ -11,7 +11,7 @@
 """
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Optional, Union, List, Tuple
+from typing import Optional, Tuple
 
 from blockchain.account import Account
 from features.utils import get_transaction_message as tx_msg
