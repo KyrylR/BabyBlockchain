@@ -3,32 +3,48 @@ from typing import Optional, List
 
 from blockchain.account import Account
 from blockchain.block import Block
+from blockchain.hash import Hash
 from blockchain.transaction.transaction import Transaction
+
+"""
+This is the first attempt to use blockchain. 
+We will have to do a lot of optimizations in the future for better performance!
+"""
 
 
 @dataclass
 class Blockchain:
     # A table showing the current state of balances in the system.
-    # The account ID is used as the key, the user balance as the value.
-    coin_database: Optional[Account] = field(default=None)
+    # The account ID is used as the key, the user balance as the value. (to do)
+    coin_database: Optional[List[Account]] = field(default=None)
 
     # An array containing all blocks added to the history.
     block_history: Optional[List[Block]] = field(default=None)
 
-    # An array storing all the transactions in the history. This will be used for quicker access when checking the
+    # An array storing all the transactions in the history.
+    # This will be used for quicker access when checking the
     # existence of a transaction in the history (duplicate protection).
-    txDatabase: Optional[List[Transaction]] = field(default=None)
+    tx_database: Optional[List[Transaction]] = field(default=None)
 
     # An integer value defining the number of coins available in the tap for testing.
     faucetCoins: int = field(default=100)
 
-    def init_blockchain(self) -> None:
+    def __post_init__(self):
+        self.__init_blockchain()
+
+    def __init_blockchain(self) -> None:
         """
         A function to initialize the blockchain.
         Under the bonnet, the genesis block is created and added to the history.
         :return:
         """
-        pass
+        creators = Account()
+        genesis_block = Block()
+
+    def get_lat_block(self) -> Optional[Block]:
+        if self.block_history is not None:
+            return self.block_history[-1]
+        return None
 
     def get_token_from_faucet(self) -> None:
         """
@@ -62,3 +78,15 @@ class Blockchain:
         :return:
         """
         pass
+
+
+emission_value = 50
+
+
+def proof_of_work(block: Block, miner: Account) -> Block:
+    print(block.__repr__())
+    while block.target < block.block_id:
+        block.get_new_block_id(Hash.to_sha1)
+
+    block.add_coinbase_transaction(miner, emission_value)
+    return block.create_block()
