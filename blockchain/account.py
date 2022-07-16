@@ -88,6 +88,9 @@ class Account:
         """
         return self.__balance
 
+    def sync_balance(self, coin_database: Dict):
+        self.__balance = coin_database[self.account_id]
+
     def print(self) -> None:
         """
         A function to print the keypair objects.
