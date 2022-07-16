@@ -19,6 +19,10 @@ class OperationTestCase(unittest.TestCase):
         _, correct = self.op_gen.create_payment_operation(self.first, self.second, 5, self.first.wallet[0])
         self.assertTrue(correct)
 
+        # Ok operation to same account
+        _, correct = self.op_gen.create_payment_operation(self.first, self.first, 5, self.first.wallet[0])
+        self.assertTrue(correct)
+
         # Balance error
         _, correct = self.op_gen.create_payment_operation(self.first, self.second, 25, self.first.wallet[0])
         self.assertFalse(correct)
@@ -27,14 +31,15 @@ class OperationTestCase(unittest.TestCase):
         _, correct = self.op_gen.create_payment_operation(self.first, self.second, 25, self.second.wallet[0])
         self.assertFalse(correct)
 
-        # Balance error (5 spent in first operation)
-        _, correct = self.op_gen.create_payment_operation(self.first, self.second, 17, self.first.wallet[0])
+        # Balance error (10 spent in previous operations)
+        _, correct = self.op_gen.create_payment_operation(self.first, self.second, 11, self.first.wallet[0])
         self.assertFalse(correct)
 
     def test_coinbase_operation(self):
         # Ok operation
         op = self.op_gen.create_coinbase_op(self.first, 10)
         self.assertIsNotNone(op)
+
 
 if __name__ == '__main__':
     unittest.main()
