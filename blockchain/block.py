@@ -1,5 +1,6 @@
+from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Optional, List
+from typing import Optional, List, Callable
 
 from blockchain.transaction.transaction import Transaction
 
@@ -7,20 +8,40 @@ from blockchain.transaction.transaction import Transaction
 @dataclass
 class Block:
     # Unique block ID (hash value from all other data).
-    block_id: Optional[str] = field(default=None)
+    block_id: Optional[str] = field(default=None, repr=False)
 
     # identifier of the preceding block (needed to ensure the integrity of the story).
-    prev_hash: Optional[str] = field(default=None)
+    prev_hash: Optional[str] = field(default=None, init=True)
 
     # List of transactions validated in this block.
-    set_of_transactions: Optional[List[Transaction]] = field(default=None)
+    set_of_transactions: Optional[List[Transaction]] = field(default=None, init=True)
 
-    @staticmethod
-    def create_block(block_id: str, prev_hash: str, set_of_transactions: List[Transaction]) -> "Block":
+    # Timestamp
+    timestamp: Optional[int] = field(default=None, init=True)
+
+    # Target
+    target: str = field(default=0x00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
+
+    # Nonce
+    nonce: int = field(default=0)
+
+    def create_block(self) -> Optional["Block"]:
         """
         The function allows to create a block with all the necessary details. Accepts a list of transactions and
         the previous block's identifier as input.
 
         :return: Block object.
         """
-        return Block(block_id=block_id, prev_hash=prev_hash, set_of_transactions=set_of_transactions)
+        if self.block_id is None:
+            return None
+
+        if self.block_id < self.target:
+            return deepcopy(self)
+
+        return None
+
+    def get_new_block_id(self, hash_alg: Callable):
+        self.nonce += 1
+        print(self.__repr__())
+        self.block_id = hash_alg(self.__repr__())
+
