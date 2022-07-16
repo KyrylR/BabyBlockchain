@@ -1,7 +1,7 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 from pprint import pprint
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict
 
 from signature_algorithms.ecdsa_signature import ECDSA
 from signature_algorithms.key_pair import KeyPair
@@ -24,6 +24,9 @@ class Account:
 
     def __eq__(self, other):
         return self.account_id == other.account_id
+
+    def __hash__(self):
+        return self.account_id
 
     def get_account(self) -> "Account":
         """
