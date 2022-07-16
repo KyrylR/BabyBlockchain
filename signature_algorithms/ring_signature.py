@@ -3,12 +3,11 @@ from random import randint
 from typing import Optional
 
 from dataclasses import dataclass, field
-from curve import MontgomeryCurve, Point
 
 # Use my own implementation of Keccak
 from hash_lib.Keccak.Keccak import Keccak
-from features.utils import performance
-from key_pair import KeyPairGenerator
+
+from signature_algorithms.curve import Point, MontgomeryCurve
 
 
 @dataclass
@@ -97,20 +96,3 @@ class RingSignature:
 
         to_check = self.convert_to_hash_string(msg, z_s[keys_count - 1])
         return e[0] == to_check
-
-
-if __name__ == "__main__":
-    sign = RingSignature()
-    key_pair = KeyPairGenerator()
-    public_keys_list = []
-    private_keys = []
-
-    for idx in range(4):
-        pk, pbk = key_pair.gen_keypair()
-        public_keys_list.append(pbk)
-        private_keys.append(pk)
-
-    test_index = 2
-    message = "This is a ring signature"
-    signature = sign.sign(message, public_keys_list, private_keys[test_index], test_index)
-    print(sign.verify(message, public_keys_list, *signature))

@@ -5,8 +5,6 @@ from blockchain.hash import Hash
 from features.utils import mod_inv
 from signature_algorithms.curve import Point, MontgomeryCurve
 
-from signature_algorithms.key_pair import KeyPairGenerator
-
 
 @dataclass
 class ECDSA:
@@ -67,23 +65,3 @@ class ECDSA:
 
         # 7. Accept the signature if and only if u = r.
         return v == r
-
-
-if __name__ == "__main__":
-    sign = ECDSA()
-    key_pair = KeyPairGenerator()
-    public_keys_list = []
-    private_keys = []
-
-    for idx in range(20):
-        pk, pbk = key_pair.gen_keypair()
-        public_keys_list.append(pbk)
-        private_keys.append(pk)
-
-    test_index = 2
-    msg = "This is a ECDSA signature"
-    signature = sign.sign(private_keys[test_index], msg)
-    # True
-    print(sign.verify(public_keys_list[test_index], msg, *signature))
-    # False
-    print(sign.verify(public_keys_list[0], msg, *signature))
