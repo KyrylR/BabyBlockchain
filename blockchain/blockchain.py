@@ -1,3 +1,4 @@
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Optional, List
 
@@ -30,6 +31,9 @@ class Blockchain:
     faucetCoins: int = field(default=100)
 
     def __post_init__(self):
+        self.coin_database = []
+        self.block_history = []
+        self.tx_database = []
         self.__init_blockchain()
 
     def __init_blockchain(self) -> None:
@@ -38,21 +42,27 @@ class Blockchain:
         Under the bonnet, the genesis block is created and added to the history.
         :return:
         """
-        creators = Account()
-        genesis_block = Block()
+        creator = Account().get_account()
+        self.coin_database.append(creator)
+        genesis_block = proof_of_work(Block(), creator)
+        self.block_history.append(genesis_block)
 
     def get_lat_block(self) -> Optional[Block]:
         if self.block_history is not None:
             return self.block_history[-1]
         return None
 
-    def get_token_from_faucet(self) -> None:
+    def get_token_from_faucet(self, account: Account, amount: int) -> bool:
         """
         A function to retrieve test coins from the tap.
         Updates the coinDatabase and balance of the account that called the method.
-        :return:
+        :return: true if operation is successful
         """
-        pass
+        if amount > self.faucetCoins:
+            return False
+        self.faucetCoins -= amount
+        account.update_balance(amount)
+        return True
 
     def validate_block(self, block_to_add: Block) -> bool:
         """
@@ -84,12 +94,12 @@ class Blockchain:
         self.tx_database.extend(block_to_add.set_of_transactions)
         return True
 
-    def get_account_state(self):
+    def get_account_state(self) -> List[Account]:
         """
         Gets the current state of accounts and balances.
         :return:
         """
-        pass
+        return deepcopy(self.coin_database)
 
 
 emission_value = 50
