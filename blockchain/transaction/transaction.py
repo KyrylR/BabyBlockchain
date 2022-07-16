@@ -9,7 +9,8 @@ from typing import Optional, List
 
 from hash_lib.Keccak import Keccak
 
-from operation import Operation
+from blockchain.account import Account
+from blockchain.transaction.operation import Operation
 
 
 @dataclass
@@ -21,6 +22,7 @@ class Transaction:
     set_of_operations: Optional[List[Operation]] = field(default=None)
 
     # value to protect duplicate transactions with the same transactions.
+    # in range [0, 255]
     sequence: int = field(default=0)
 
     def __post_init__(self):
@@ -34,4 +36,19 @@ class Transaction:
         It takes a list of transactions and nonce as input.
         :return: Transaction object.
         """
+        if sequence < 0:
+            sequence = 0
+        elif sequence > 255:
+            sequence = 255
+
         return Transaction(set_of_operations=operations, sequence=sequence)
+
+    @staticmethod
+    def crete_coinbase_transaction(miner: Account, amount: int) -> "Transaction":
+        """
+        The function allows to create a transaction with all necessary details.
+        It takes a list of transactions and nonce as input.
+        :return: Transaction object.
+        """
+        op = Operation().create_coinbase_op(miner, amount)
+        return Transaction(set_of_operations=[op], sequence=255)

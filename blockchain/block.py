@@ -2,6 +2,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Optional, List, Callable
 
+from blockchain.account import Account
 from blockchain.transaction.transaction import Transaction
 
 
@@ -44,4 +45,10 @@ class Block:
         self.nonce += 1
         print(self.__repr__())
         self.block_id = hash_alg(self.__repr__())
+
+    def add_coinbase_transaction(self, miner: Account, amount: int):
+        tx = Transaction().crete_coinbase_transaction(miner, amount)
+        self.set_of_transactions.append(tx)
+
+
 

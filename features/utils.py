@@ -6,7 +6,6 @@ All links are provided!
 
 from math import log
 
-from blockchain.account import Account
 from blockchain.hash import Hash
 
 """
@@ -166,5 +165,9 @@ def performance(func):
     return wrapper
 
 
-def get_transaction_message(sender: Account, receiver: Account, amount) -> str:
-    return Hash().to_sha1(str(sender.account_id) + str(receiver.account_id) + str(amount))
+def get_transaction_message(sender_acc_id: str, receiver_acc_id: str, amount: int) -> str:
+    return Hash().to_sha1(sender_acc_id + receiver_acc_id + str(amount))
+
+
+def get_coinbase_tx_msg(receiver_acc_id: str, amount: int) -> str:
+    return Hash().to_sha1(receiver_acc_id + str(amount))
