@@ -5,7 +5,7 @@
 В данной имплементации отсутствует проверка уникальности операции, только уникальность транзакции. Однако учтите что в
 таком случае злоумышленник может создать новую транзакцию, в которую добавить данную операцию и потратить монеты с
 чужого аккаунта. Постарайтесь избежать данной уязвимости в вашей реализации.
-В случае если к конкретному аккаунту привязан кошелек с  большим количеством ключей - не забудьте проверить все на
+В случае если к конкретному аккаунту привязан кошелек с большим количеством ключей - не забудьте проверить все на
 соответствие подписи.
 
 """
@@ -16,6 +16,7 @@ from typing import Optional, Tuple
 from blockchain.account import Account
 from features.utils import get_transaction_message as tx_msg
 from signature_algorithms.ecdsa_signature import ECDSA
+from signature_algorithms.key_pair import KeyPair
 
 
 @dataclass
@@ -39,11 +40,11 @@ class Operation:
         self.amount = amount
         self.signature = signature
 
-    def create_operation(self,
-                         sender: Account,
-                         receiver: Account,
-                         amount: int,
-                         signature: Tuple[int, int]) -> Tuple[Optional["Operation"], bool]:
+    def __create_operation(self,
+                           sender: Account,
+                           receiver: Account,
+                           amount: int,
+                           signature: Tuple[int, int]) -> Tuple[Optional["Operation"], bool]:
         """
         The function allows to create a transaction with all the necessary details and signature.
         It takes as input the accounts of the sender and the recipient of the funds, the transfer amount
@@ -74,36 +75,48 @@ class Operation:
 
         for pair in self.sender.wallet:
             if ECDSA().verify(pair.public_key, tx_msg(self.sender.account_id,
-                                                      self.receiver.account_id, self.amount), *self.signature):
+                                                      self.receiver.account_id,
+                                                      self.amount), *self.signature):
                 return True
 
         return False
 
-    @staticmethod
-    def create_coinbase_op(receiver: Account, amount: int) -> "Operation":
-        return deepcopy(Operation(sender=None, receiver=receiver, amount=amount, signature=None))
+    def create_coinbase_op(self, receiver: Account, amount: int) -> Optional["Operation"]:
+        sig, correct_sig = receiver.sign_data(receiver.wallet[0].private_key,
+                                              tx_msg(receiver.account_id, receiver.account_id, amount))
 
-    @staticmethod
-    def create_payment_operation(sender: Account,
+        self.__initialize_fields(receiver, receiver, amount, sig)
+
+        if correct_sig is True:
+            return deepcopy(self)
+
+        return None
+
+    def create_payment_operation(self,
+                                 sender: Account,
                                  other_account: Account,
                                  amount: int,
-                                 private_key: int) -> Tuple[Optional["Operation"], bool]:
+                                 keys: KeyPair) -> Tuple[Optional["Operation"], bool]:
         """
         A function that allows to create a payment transaction on behalf of this account for the recipient.
         It accepts the account object to which the payment will be made, the amount of the
         transfer and the wallet's key index.
-        :return: true if everything is fine and Operation itseld
+        :return: true if everything is fine and Operation itself
         """
+        if keys not in sender.wallet:
+            return None, False
+
         if amount <= 0 or amount > sender.get_balance:
             return None, False
 
-        signature, correct = sender.sign_data(private_key, tx_msg(sender.account_id, other_account.account_id, amount))
+        signature, correct = sender.sign_data(keys.private_key,
+                                              tx_msg(sender.account_id, other_account.account_id, amount))
         if correct is False:
             return None, False
 
-        op, correct = Operation().create_operation(sender, other_account, amount, signature)
+        op, correct = self.__create_operation(sender, other_account, amount, signature)
         if correct is True:
+            sender.update_balance(-1 * amount)
             return op, True
         else:
             return None, False
-
