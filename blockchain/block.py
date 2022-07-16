@@ -41,14 +41,26 @@ class Block:
 
         return None
 
-    def get_new_block_id(self, hash_alg: Callable):
+    def get_new_block_id(self, hash_alg: Callable) -> None:
         self.nonce += 1
         print(self.__repr__())
         self.block_id = hash_alg(self.__repr__())
 
-    def add_coinbase_transaction(self, miner: Account, amount: int):
+    def add_coinbase_transaction(self, miner: Account, amount: int) -> None:
         tx = Transaction().crete_coinbase_transaction(miner, amount)
         self.set_of_transactions.append(tx)
 
 
+    def verify_block(self) -> bool:
+        seen = set()
+        for tx in self.set_of_transactions:
+            if not tx.verify_transaction():
+                return False
+            if tx in seen:
+                return False
+            seen.add(tx)
 
+        if self.target < self.block_id:
+            return False
+
+        return True

@@ -54,8 +54,7 @@ class Blockchain:
         """
         pass
 
-    @staticmethod
-    def validate_block() -> bool:
+    def validate_block(self, block_to_add: Block) -> bool:
         """
         Helps to validate the block and add it to the history.
         :return:
@@ -63,13 +62,26 @@ class Blockchain:
 
         """
         Функция validateBlock должна содержать набор следующих проверок:
-        Проверка что блок содержит ссылку на последний актуальный блок в истории;
-        Проверка что транзакции в блоке еще не были добавлены в историю;
-        Проверка того что блок не содержит конфликтующих транзакций.
-        Проверка каждой операции в транзакции:
-        Проверка подписи;
-        Проверка того что операция платит не больше монет чем хранится на балансе аккаунта отправителя.
+        +Проверка что блок содержит ссылку на последний актуальный блок в истории(validate_block func);
+        +Проверка что транзакции в блоке еще не были добавлены в историю(validate_block func);
+        +Проверка того что блок не содержит конфликтующих транзакций(verify_block func in Block class).
+        +Проверка каждой операции в транзакции(verify_transaction func in Transaction class):
+        +Проверка подписи(verify_operation func in Operation class);
+        +Проверка того что операция платит не больше монет чем хранится на балансе аккаунта 
+        (verify_operation func in Operation class).
         """
+        if block_to_add.prev_hash != self.get_lat_block().block_id:
+            return False
+
+        for tx in block_to_add.set_of_transactions:
+            if tx in self.tx_database:
+                return False
+
+        if not block_to_add.verify_block():
+            return False
+
+        self.block_history.append(block_to_add)
+        self.tx_database.extend(block_to_add.set_of_transactions)
         return True
 
     def get_account_state(self):

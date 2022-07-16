@@ -16,7 +16,7 @@ from blockchain.transaction.operation import Operation
 @dataclass
 class Transaction:
     # unique transaction ID (hash value from all other transaction fields).
-    transaction_id: Optional[int] = field(default=None)
+    transaction_id: Optional[str] = field(default=None, repr=False)
 
     # set of payment transactions validated in this transaction.
     set_of_operations: Optional[List[Operation]] = field(default=None)
@@ -52,3 +52,15 @@ class Transaction:
         """
         op = Operation().create_coinbase_op(miner, amount)
         return Transaction(set_of_operations=[op], sequence=255)
+
+    def verify_transaction(self) -> bool:
+        if self.sequence < 0 or \
+                self.sequence > 255 or \
+                self.transaction_id != Keccak().update(self.__repr__().encode()):
+            return False
+
+        for op in self.set_of_operations:
+            if not op.verify_operation():
+                return False
+
+        return True

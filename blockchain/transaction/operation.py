@@ -53,12 +53,12 @@ class Operation:
         """
         self.__initialize_fields(sender, receiver, amount, signature)
 
-        if self.__verify_operation():
+        if self.verify_operation():
             return deepcopy(self), True
         else:
             return None, False
 
-    def __verify_operation(self) -> bool:
+    def verify_operation(self) -> bool:
         """
         The function which performs the verification of the operation. The main checks (relevant for proposed
         implementation) are: checking the transfer amount (that it does not exceed the sender's balance) and
@@ -97,7 +97,7 @@ class Operation:
         if amount <= 0 or amount > sender.get_balance:
             return None, False
 
-        signature, correct = sender.sign_data(private_key, tx_msg(sender, other_account, amount))
+        signature, correct = sender.sign_data(private_key, tx_msg(sender.account_id, other_account.account_id, amount))
         if correct is False:
             return None, False
 
@@ -106,3 +106,4 @@ class Operation:
             return op, True
         else:
             return None, False
+
