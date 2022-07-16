@@ -25,7 +25,7 @@ class Transaction:
 
     # value to protect duplicate transactions with the same transactions.
     # in range [0, 255]
-    sequence: int = field(default=0)
+    sequence: int = field(default=0, repr=False)
 
     # @performance
     def __initialize_fields(self, operations: List[Operation], sequence: int):
@@ -51,13 +51,13 @@ class Transaction:
         :return: Transaction object.
         """
         op = Operation().create_coinbase_op(miner, amount)
-        self.__initialize_fields([op], 255)
+        self.__initialize_fields([op], -1)
         if self.verify_transaction(True):
             return deepcopy(self)
         return None
 
     def verify_transaction(self, coinbase: bool = False) -> bool:
-        if self.sequence < 0 or \
+        if (self.sequence < 0 and not coinbase) or \
                 self.sequence > 255 or \
                 self.transaction_id is None or \
                 self.transaction_id != SHA1().update(self.__repr__().encode()):
