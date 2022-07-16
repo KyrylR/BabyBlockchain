@@ -78,3 +78,8 @@ class Transaction:
 
     def __hash__(self):
         return int(SHA1().update(self.__repr__().encode()), 16)
+
+    def to_text_tx(self):
+        return f"{'Transaction id:':15} {self.transaction_id}\n" + \
+               f"{'Timestamp:':15} {self.__timestamp}\n" + \
+               f"{'Sequence:':15} {self.sequence}]\n"

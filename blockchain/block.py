@@ -18,12 +18,19 @@ class Block:
     # List of transactions validated in this block.
     set_of_transactions: Optional[List[Transaction]] = field(default=None, init=True)
     # Target
-    target: int = field(default=0x0fffffffffffffffffffffffffffffffffffffff)
+    target: int = field(default=0x000fffffffffffffffffffffffffffffffffffff)
     # Nonce
     nonce: int = field(default=0)
 
     def __post_init__(self):
         self.set_of_transactions = []
+
+    def to_text_block(self):
+        return f"{'Block id:':15} {self.block_id}\n" + \
+               f"{'Prev hash:':15} {self.prev_hash}\n" + \
+               f"{'Timestamp:':15} {self.timestamp}\n" + \
+               f"{'Target:':15} {self.target}\n" + \
+               f"{'Nonce:':15} {self.nonce}]\n"
 
     def create_block(self) -> Optional["Block"]:
         """

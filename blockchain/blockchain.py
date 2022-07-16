@@ -33,6 +33,15 @@ class Blockchain:
     # An integer value defining the number of coins available in the tap for testing.
     faucetCoins: int = field(default=100)
 
+    def get_block_history(self):
+        print("\n\nStart block history")
+        print("-" * 20, end='\n')
+        for block in self.block_history:
+            print(block.to_text_block(), end='\n\n')
+
+        print("-" * 20, end='\n')
+        print("End block history\n\n")
+
     def __post_init__(self):
         self.coin_database = dict()
         self.block_history = []
