@@ -50,6 +50,23 @@ class Block:
         tx = Transaction().crete_coinbase_transaction(miner, amount)
         self.set_of_transactions.append(tx)
 
+    def add_transaction(self, transaction: Transaction) -> bool:
+        addition_need = True
+        if not transaction.verify_transaction():
+            return False
+        for tx in self.set_of_transactions:
+            if transaction.transaction_id == tx.transaction_id:
+                if transaction.sequence > tx.sequence:
+                    self.set_of_transactions.remove(tx)
+                    self.set_of_transactions.append(transaction)
+                    addition_need = False
+                    continue
+            if not tx.verify_transaction():
+                return False
+
+        if addition_need is True:
+            self.set_of_transactions.append(transaction)
+        return True
 
     def verify_block(self) -> bool:
         seen = set()
