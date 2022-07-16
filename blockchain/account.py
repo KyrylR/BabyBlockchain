@@ -50,7 +50,7 @@ class Account:
         It takes an integer value as input.
         :return: true if everything is fine.
         """
-        if self.__balance + value >= 0:
+        if self.get_balance + value >= 0:
             self.__balance += value
             return True
 
@@ -66,6 +66,16 @@ class Account:
             if private_key == pair.private_key:
                 return ECDSA().sign(private_key, message), True
         return None, False
+
+    def verify_data(self, message: str, signature: Tuple[int, int]):
+        """
+        A function which allows the user to verify signed data.
+        :return: true if data was signed by this account
+        """
+        for pair in self.wallet:
+            if ECDSA().verify(pair.public_key, message, *signature):
+                return True
+        return False
 
     @property
     def get_balance(self) -> int:
@@ -87,4 +97,4 @@ class Account:
         Prints the user's balance.
         :return: None.
         """
-        pprint(f"Balance: {self.__balance} for account: {self.account_id}")
+        pprint(f"Balance: {self.get_balance} for account: {self.account_id}")
