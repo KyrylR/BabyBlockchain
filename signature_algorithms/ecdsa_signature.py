@@ -1,10 +1,9 @@
 from dataclasses import dataclass, field
 from random import randint
 from typing import Tuple, Optional
-from curve import MontgomeryCurve, Point
 from blockchain.hash import Hash
 from features.utils import mod_inv
-from features.utils import performance
+from signature_algorithms.curve import Point, MontgomeryCurve
 
 from signature_algorithms.key_pair import KeyPairGenerator
 

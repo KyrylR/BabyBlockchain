@@ -1,8 +1,9 @@
 from binascii import hexlify
 from dataclasses import dataclass, field
 from os import urandom
-from curve import MontgomeryCurve, Point
 from typing import Tuple, Optional
+
+from signature_algorithms.curve import MontgomeryCurve, Point
 
 """
 I find these approaches beautiful, simple and effective.
@@ -90,9 +91,8 @@ class KeyPairGenerator:
 
 @dataclass
 class KeyPair:
-    generator: KeyPairGenerator = field(default=KeyPairGenerator(), repr=False, init=False)
     private_key: Optional[int] = field(default=None)
     public_key: Optional[Point] = field(default=None)
 
     def __post_init__(self):
-        self.private_key, self.public_key = self.generator.gen_keypair()
+        self.private_key, self.public_key = KeyPairGenerator().gen_keypair()
