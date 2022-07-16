@@ -21,16 +21,17 @@ class Transaction:
     set_of_operations: Optional[List[Operation]] = field(default=None)
 
     # value to protect duplicate transactions with the same transactions.
-    nonce: int = field(default=0)
+    sequence: int = field(default=0)
 
     def __post_init__(self):
+        print(self.__repr__())
         self.transaction_id = Keccak().update(self.__repr__().encode())
 
     @staticmethod
-    def crete_transaction(transactions: List[Operation], nonce: int) -> "Transaction":
+    def crete_transaction(operations: List[Operation], sequence: int) -> "Transaction":
         """
         The function allows to create a transaction with all necessary details.
         It takes a list of transactions and nonce as input.
         :return: Transaction object.
         """
-        return Transaction(set_of_operations=transactions, nonce=nonce)
+        return Transaction(set_of_operations=operations, sequence=sequence)
