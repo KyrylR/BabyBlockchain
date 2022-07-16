@@ -6,13 +6,13 @@
 """
 from copy import deepcopy
 from dataclasses import dataclass, field
+from time import time
 from typing import Optional, List
 
 from hash_lib.SHA1 import SHA1
 
 from blockchain.account import Account
 from blockchain.transaction.operation import Operation
-from features.utils import performance
 
 
 @dataclass
@@ -26,6 +26,9 @@ class Transaction:
     # value to protect duplicate transactions with the same transactions.
     # in range [0, 255]
     sequence: int = field(default=0, repr=False)
+
+    # Timestamp
+    __timestamp: Optional[int] = field(default=int(time()))
 
     # @performance
     def __initialize_fields(self, operations: List[Operation], sequence: int):
@@ -68,3 +71,10 @@ class Transaction:
                 return False
 
         return True
+
+    def update_time(self):
+        self.__timestamp = int(time())
+        self.transaction_id = SHA1().update(self.__repr__().encode())
+
+    def __hash__(self):
+        return int(SHA1().update(self.__repr__().encode()), 16)
