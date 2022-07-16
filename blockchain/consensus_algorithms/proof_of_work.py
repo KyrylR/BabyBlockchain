@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 from blockchain.block import Block
 from blockchain.hash import Hash
 
