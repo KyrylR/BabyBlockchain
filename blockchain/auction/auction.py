@@ -4,7 +4,7 @@ from typing import Optional, List, Tuple
 
 from blockchain.account import Account
 from blockchain.block import Block
-from blockchain.blockchain import Blockchain, proof_of_work
+from blockchain.blockchain import Blockchain, ConsensusAlgorithms
 from blockchain.transaction.operation import Operation
 from blockchain.transaction.transaction import Transaction
 
@@ -20,19 +20,19 @@ class Auction:
 
     # Current state of Auction
     highest_bidder: Optional[Account] = field(default=None)
-    highest_bid: Optional[int] = field(default=None)
+    highest_bid: int = field(default=0)
     ended: bool = field(default=None)
 
     pending_returns: Optional[List[Operation]] = field(default=None)
 
     def __post_init__(self):
         self.pending_returns = []
-        block = self.__build_block(self.beneficiary, 0)
+        block = self.__build_block(self.beneficiary, 1)
         if block is None:
             print('Something went wrong try again later!')
             self.ended = True
             return
-        block = proof_of_work(block, self.beneficiary)
+        block = ConsensusAlgorithms(0).proof_of_work(block, self.beneficiary)
         self.blockchain.validate_block(block)
         self.auction_end_time += int(block.timestamp)
         print(f"Auction has started! Time left: {time.strftime('%H:%M:%S', time.gmtime(self.get_time_left()))}")
@@ -62,8 +62,7 @@ class Auction:
             return False
 
         if self.highest_bid != 0:
-            self.__add_to_pending_returns(account, amount)
-            return False
+            self.__add_to_pending_returns(self.highest_bidder, self.highest_bid)
 
         self.highest_bid = amount
         self.highest_bidder = account
@@ -72,7 +71,7 @@ class Auction:
     def verify_bid(self, account: Account, block: Block, transaction: Transaction) -> Tuple[bool, int]:
         if block not in self.blockchain.block_history or \
                 transaction not in self.blockchain.tx_database or \
-                account not in self.blockchain.coin_database:
+                account.account_id not in self.blockchain.coin_database:
             return False, 0
 
         amount = 0
@@ -82,9 +81,21 @@ class Auction:
         if amount == 0:
             return False, 0
 
+        if self.highest_bidder is not None and self.highest_bidder == account:
+            amount += self.highest_bid
+            return True, amount
+
+        if len(self.pending_returns) > 0:
+            for operation in self.pending_returns:
+                if operation.receiver == account:
+                    amount += operation.amount
+                    self.pending_returns.remove(operation)
+                    return True, amount
         return True, amount
 
+
     def __add_to_pending_returns(self, account: Account, amount: int):
+
         op, _ = Operation().create_payment_operation(self.beneficiary,
                                                      account,
                                                      amount,
@@ -96,7 +107,7 @@ class Auction:
         if block is None:
             print('Something went wrong try again later!')
             return
-        block = proof_of_work(block, self.beneficiary)
+        block = ConsensusAlgorithms(0).proof_of_work(block, self.beneficiary)
         self.blockchain.validate_block(block)
 
     def __build_block(self,
@@ -124,7 +135,8 @@ class Auction:
     def auction_end(self):
         self.ended = True
         block = self.__build_block(operations=self.pending_returns)
-        block = proof_of_work(block, self.beneficiary)
+        block = ConsensusAlgorithms(0).proof_of_work(block, self.beneficiary)
         self.blockchain.validate_block(block)
+        self.pending_returns.clear()
         print(f"Winner account: {self.highest_bidder.account_id}\n"
               f"Winner paid: {self.highest_bid}")
