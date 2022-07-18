@@ -34,7 +34,7 @@ class BlockchainTestCase(unittest.TestCase):
         # first: 15, second: 13 (confirmed: f: 15, s: 18)
         op2, _ = self.op_gen.create_payment_operation(self.first, self.second, 8, self.first.wallet[0])
         # first: 7, second: 13 (confirmed: f: 7, s: 26)
-        op3, _ = self.op_gen.create_payment_operation(self.second, self.second, 8, self.first.wallet[0])
+        op3, _ = self.op_gen.create_payment_operation(self.second, self.second, 8, self.second.wallet[0])
         # first: 7, second: 5 (confirmed: f: 7, s: 26)
 
         # Ok transactions

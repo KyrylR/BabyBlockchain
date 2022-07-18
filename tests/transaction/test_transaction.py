@@ -23,7 +23,7 @@ class TransactionTestCase(unittest.TestCase):
         # first: 15, second: 13
         op2, _ = self.op_gen.create_payment_operation(self.first, self.second, 8, self.first.wallet[0])
         # first: 7, second: 13
-        op3, _ = self.op_gen.create_payment_operation(self.second, self.second, 8, self.first.wallet[0])
+        op3, _ = self.op_gen.create_payment_operation(self.second, self.second, 8, self.second.wallet[0])
         # first: 7, second: 5
         # bad operation
         op4, _ = self.op_gen.create_payment_operation(self.second, self.first, 8, self.first.wallet[0])
