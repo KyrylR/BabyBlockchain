@@ -3,7 +3,7 @@ from time import time
 
 from blockchain.account import Account
 from blockchain.block import Block
-from blockchain.blockchain import Blockchain, proof_of_work
+from blockchain.blockchain import Blockchain, ConsensusAlgorithms
 from blockchain.transaction.operation import Operation
 from blockchain.transaction.transaction import Transaction
 
@@ -44,7 +44,7 @@ class BlockchainTestCase(unittest.TestCase):
         block1 = Block(int(time()), g_block.block_id)
         block1.add_transaction(tx1)
         block1.add_transaction(tx2)
-        block1 = proof_of_work(block1, self.first)
+        block1 = ConsensusAlgorithms(50).proof_of_work(block1, self.first)
         # first: 7, second: 5 (confirmed: f: 57, s: 26)
         self.assertTrue(self.blockchain.validate_block(block1))
         self.first.sync_balance(self.blockchain.coin_database)
@@ -57,7 +57,7 @@ class BlockchainTestCase(unittest.TestCase):
         block2 = Block(int(time()), block1.block_id)
         self.assertTrue(block2.add_transaction(tx1))
         self.assertTrue(block2.add_transaction(tx2))
-        block2 = proof_of_work(block2, self.first)
+        block2 = ConsensusAlgorithms(50).proof_of_work(block2, self.first)
         self.assertTrue(self.blockchain.validate_block(block2))
         self.first.sync_balance(self.blockchain.coin_database)
         self.second.sync_balance(self.blockchain.coin_database)
