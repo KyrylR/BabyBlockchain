@@ -1,7 +1,7 @@
 from copy import deepcopy
 from dataclasses import dataclass, field
 from time import time
-from typing import Optional, List, Set, Dict
+from typing import Optional, List, Dict
 
 from blockchain.account import Account
 from blockchain.block import Block
@@ -48,7 +48,7 @@ class Blockchain:
         self.tx_database = []
         self.__init_blockchain()
 
-    def __init_blockchain(self) -> None:
+    def __init_blockchain(self, emission_value: int = 50) -> None:
         """
         A function to initialize the blockchain.
         Under the bonnet, the genesis block is created and added to the history.
@@ -56,9 +56,9 @@ class Blockchain:
         """
         creator = Account().get_account()
         self.coin_database[creator.account_id] = creator.get_balance
-        genesis_block = proof_of_work(Block(timestamp=int(time()),
-                                            prev_hash=GENESIS_BLOCK_PREV_HASH),
-                                      creator)
+        genesis_block = ConsensusAlgorithms(emission_value).proof_of_work(Block(timestamp=int(time()),
+                                                                                prev_hash=GENESIS_BLOCK_PREV_HASH),
+                                                                          creator)
 
         self.tx_database.extend(genesis_block.set_of_transactions)
         self.block_history.append(genesis_block)
@@ -131,15 +131,16 @@ class Blockchain:
         self.coin_database[account.account_id] = account.get_balance
 
 
-emission_value = 50
+@dataclass
+class ConsensusAlgorithms:
+    emission_value: int = field(default=50, init=True)
 
-
-def proof_of_work(block: Block, miner: Account) -> Block:
-    block.add_coinbase_transaction(miner, emission_value)
-    block.get_new_block_id(Hash.to_sha1)
-    while block.target < int(block.block_id, 16):
+    def proof_of_work(self, block: Block, miner: Account) -> Block:
+        block.add_coinbase_transaction(miner, self.emission_value)
         block.get_new_block_id(Hash.to_sha1)
-        # print(hex(block.target))
-        # print(block.block_id)
+        while block.target < int(block.block_id, 16):
+            block.get_new_block_id(Hash.to_sha1)
+            # print(hex(block.target))
+            # print(block.block_id)
 
-    return block.create_block()
+        return block.create_block()
