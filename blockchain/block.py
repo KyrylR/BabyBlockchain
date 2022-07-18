@@ -18,7 +18,7 @@ class Block:
     # List of transactions validated in this block.
     set_of_transactions: Optional[List[Transaction]] = field(default=None, init=True)
     # Target
-    target: int = field(default=0x000fffffffffffffffffffffffffffffffffffff)
+    target: int = field(default=0x0fffffffffffffffffffffffffffffffffffffff)
     # Nonce
     nonce: int = field(default=0)
 
