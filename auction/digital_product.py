@@ -4,4 +4,13 @@ from typing import Optional
 
 @dataclass
 class DigitalProduct:
-    data: Optional[str] = field(default=None)
+    # Some string data
+    __data: Optional[str] = field(default=None)
+
+    @property
+    def get_data(self):
+        """
+        Get digital data.
+        :return: data.
+        """
+        return self.__data
