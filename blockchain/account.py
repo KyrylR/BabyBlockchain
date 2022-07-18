@@ -26,7 +26,7 @@ class Account:
         return self.account_id == other.account_id
 
     def __hash__(self):
-        return self.account_id
+        return int(self.account_id, 16)
 
     def get_account(self) -> "Account":
         """
@@ -34,6 +34,7 @@ class Account:
         assigned to the account.
         :return: object of class Account.
         """
+        self.wallet.clear()
         self.wallet.append(KeyPair())
         self.wallet.append(KeyPair())
         self.account_id = Keccak().update(str(self.wallet).encode())
