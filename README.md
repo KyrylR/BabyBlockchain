@@ -74,7 +74,7 @@ Thanks for your feedback!`
 
 ### Executing program
 
-* To run the tests, you must activate hash_lib_venv:
+* To run the tests, you must activate venv:
 
 ```
 .\venv\Scripts\activate
